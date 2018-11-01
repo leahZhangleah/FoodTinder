@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">FoodTinder</string>
+    <string name="log_out">Log Out</string>
+</resources>

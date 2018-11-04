@@ -1,4 +1,4 @@
-package com.example.android.foodtinder;
+package com.example.android.foodtinder.app;
 
 import android.app.Application;
 

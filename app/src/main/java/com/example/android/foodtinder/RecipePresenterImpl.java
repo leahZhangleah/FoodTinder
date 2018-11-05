@@ -1,6 +1,6 @@
 package com.example.android.foodtinder;
 
-import android.util.Log;
+import android.graphics.drawable.Drawable;
 
 import com.example.android.foodtinder.db.Recipe;
 
@@ -32,13 +32,41 @@ public class RecipePresenterImpl implements RecipePresenter {
         EventBus.getDefault().unregister(this);
     }
 
+    @Override
+    public void dismissRecipe() {
+        recipeView.showProgress();
+        recipeView.setDismissAnimation();
+        getNextRecipe();
+    }
+
+    @Override
+    public void saveRecipe(Recipe recipe) {
+        recipeView.showProgress();
+        recipeView.setSaveAnimation();
+        getNextRecipe();
+        //todo: save recipe to db
+    }
+
+    @Override
+    public void onImageLoadFailed(String error) {
+        recipeView.hideProgress();
+        recipeView.onReceiveError(error);
+    }
+
+    @Override
+    public void onImageResourceReady(Drawable image) {
+        recipeView.hideProgress();
+        recipeView.setImage(image);
+    }
+
     @Subscribe()
     public void onReceiveEvent(RecipeEvent recipeEvent){
         if(recipeEvent.getCurrentRecipe()!=null){
             Recipe recipe = recipeEvent.getCurrentRecipe();
-            recipeView.onReceiveNextRecipe(recipeEvent.currentRecipe);
+            recipeView.onReceiveNextRecipe(recipe);
         }else{
             if(recipeEvent.getResponseMsg()!=null){
+                recipeView.hideProgress();
                 recipeView.onReceiveResponseMsg(recipeEvent.getResponseMsg());
             }else{
                 recipeView.onReceiveError(recipeEvent.getRequestError());

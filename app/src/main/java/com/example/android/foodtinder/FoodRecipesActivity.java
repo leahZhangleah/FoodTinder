@@ -1,18 +1,24 @@
 package com.example.android.foodtinder;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.android.foodtinder.db.Recipe;
 import com.facebook.login.LoginManager;
 
@@ -20,7 +26,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FoodRecipesActivity extends AppCompatActivity implements RecipeView {
+public class FoodRecipesActivity extends AppCompatActivity implements RecipeView,RequestListener {
     private static final String TAG = "FoodRecipesActivity";
     @BindView(R.id.recipeImg)
     ImageView recipeImg;
@@ -33,8 +39,9 @@ public class FoodRecipesActivity extends AppCompatActivity implements RecipeView
     @BindView(R.id.recipe_layout)
     ConstraintLayout recipeLayout;
 
-    //private Recipe currentRecipe;
+    private Recipe currentRecipe;
     private RecipePresenter recipePresenter;
+    private GlideImageLoader glideImageLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +50,7 @@ public class FoodRecipesActivity extends AppCompatActivity implements RecipeView
         ButterKnife.bind(this);
         recipePresenter = new RecipePresenterImpl(this,getString(R.string.FOOD_API_KEY));
         recipePresenter.onCreate();
-        getNextRecipe();
+        recipePresenter.getNextRecipe();
     }
 
     @Override
@@ -60,22 +67,44 @@ public class FoodRecipesActivity extends AppCompatActivity implements RecipeView
 
     @OnClick(R.id.dismissBtn)
     public void dismissRecipe(){
-        recipeImg.setImageResource(0);
-        recipeImg.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
-        getNextRecipe();
+        recipePresenter.dismissRecipe();
     }
 
     @OnClick(R.id.saveBtn)
     public void saveRecipe(){
-        recipeImg.setImageResource(0);
-        recipeImg.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
-        getNextRecipe();
+        if(currentRecipe!=null){
+            recipePresenter.saveRecipe(currentRecipe);
+        }
     }
 
-    private void getNextRecipe(){
-        recipePresenter.getNextRecipe();
+
+    @Override
+    public void hideProgress() {
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void showProgress() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void setDismissAnimation(){
+        Animation animation = AnimationUtils.loadAnimation(this,R.anim.dismiss_animation);
+        recipeImg.startAnimation(animation);
+    }
+
+    @Override
+    public void setSaveAnimation(){
+        Animation animation = AnimationUtils.loadAnimation(this,R.anim.save_animation);
+        recipeImg.startAnimation(animation);
+    }
+
+    @Override
+    public void setImage(Drawable image) {
+        if(image!=null){
+            recipeImg.setImageDrawable(image);
+        }
     }
 
     @Override
@@ -94,30 +123,35 @@ public class FoodRecipesActivity extends AppCompatActivity implements RecipeView
 
     @Override
     public void onReceiveNextRecipe(Recipe recipe) {
-        if(recipe!=null){
-            Log.d(TAG,"id: "+recipe.getRecipe_id()+"title: "+recipe.getTitle()+
-                    "imageurl: "+recipe.getImage_url()+"sourceurl: "+recipe.getSource_url()
-                    +"favorite: "+recipe.getFavorite());
-            recipeImg.setVisibility(View.VISIBLE);
-            progressBar.setVisibility(View.GONE);
-            Glide.with(this).load(recipe.getImage_url()).into(recipeImg);
-
-
-        }
+        if(recipe!=null) currentRecipe = recipe;
+        glideImageLoader = new GlideImageLoader(recipeImg,this,this);
+        glideImageLoader.loadImage(recipe);
     }
 
     @Override
     public void onReceiveResponseMsg(String responseMsg) {
-        recipeImg.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.GONE);
         Snackbar.make(recipeLayout,responseMsg,Snackbar.LENGTH_SHORT).show();
     }
 
     @Override
     public void onReceiveError(String errorMsg) {
-        recipeImg.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.GONE);
         Snackbar.make(recipeLayout,errorMsg,Snackbar.LENGTH_SHORT).show();
 
+    }
+
+    @Override
+    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+        if(e!=null){
+            recipePresenter.onImageLoadFailed(e.getMessage());
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+        if(resource instanceof Drawable){
+            recipePresenter.onImageResourceReady((Drawable)resource);
+        }
+        return true;
     }
 }

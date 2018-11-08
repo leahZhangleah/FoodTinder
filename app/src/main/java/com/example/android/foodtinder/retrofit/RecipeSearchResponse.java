@@ -1,7 +1,5 @@
 package com.example.android.foodtinder.retrofit;
 
-import android.util.Log;
-
 import com.example.android.foodtinder.db.Recipe;
 
 import java.util.List;
@@ -32,9 +30,6 @@ public class RecipeSearchResponse {
         if(!recipes.isEmpty()){
             recipe = recipes.get(0);
         }
-        Log.d(TAG,"id: "+recipe.getRecipe_id()+"title: "+recipe.getTitle()+
-                "imageurl: "+recipe.getImage_url()+"sourceurl: "+recipe.getSource_url()
-                +"favorite: "+recipe.getFavorite());
         return recipe;
     }
 }

@@ -32,10 +32,17 @@ repositories {
 dependencies {
     //facebook sdk
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
-    //room
+    //room and rxjava
     implementation "android.arch.persistence.room:runtime:${rootProject.ext.roomVersion}"
-
     annotationProcessor "android.arch.persistence.room:compiler:${rootProject.ext.roomVersion}"
+    implementation "android.arch.persistence.room:rxjava2:${rootProject.ext.roomVersion}"
+
+    //viewmodel and extension
+    implementation "android.arch.lifecycle:extensions:${rootProject.ext.roomVersion}"
+    implementation "android.arch.lifecycle:viewmodel:${rootProject.ext.roomVersion}"
+
+    //reactivestream
+    implementation "android.arch.lifecycle:reactivestreams:${rootProject.ext.roomVersion}"
 
     //butterknife
     implementation "com.jakewharton:butterknife:${rootProject.ext.butterKnifeVersion}"

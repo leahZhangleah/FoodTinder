@@ -29,7 +29,10 @@
             android:authorities="@string/FACEBOOK_PROVIDER_AUTH"
             android:exported="true" />
 
-        <activity android:name=".FoodRecipesActivity"></activity>
+        <activity android:name=".FoodRecipesActivity" />
+        <activity android:name=".FavoriteListActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            </activity>
     </application>
 
 </manifest>

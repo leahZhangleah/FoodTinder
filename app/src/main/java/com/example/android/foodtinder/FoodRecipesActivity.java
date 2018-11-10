@@ -1,5 +1,6 @@
 package com.example.android.foodtinder;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -134,9 +135,16 @@ public class FoodRecipesActivity extends AppCompatActivity implements RecipeView
                 LoginManager.getInstance().logOut();
                 finish();
                 return true;
-
+            case R.id.favorite_list:
+                navigateToFavoriteList();
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void navigateToFavoriteList(){
+        Intent intent = new Intent(this,FavoriteListActivity.class);
+        startActivity(intent);
     }
 
 

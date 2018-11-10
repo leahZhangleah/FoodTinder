@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/favorite_list"
+        android:title="@string/favorite_recipe_list"/>
     <item android:id="@+id/logOutBtn"
         android:title="@string/log_out">
     </item>

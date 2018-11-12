@@ -9,14 +9,26 @@ import java.util.List;
 
 public class FavoriteRecipeRepository {
 
-    FoodDatabase foodDatabase;
+    private FoodDatabase foodDatabase;
+    private AppExecutor appExecutor;
 
-    public FavoriteRecipeRepository(FoodDatabase foodDatabase) {
+    public FavoriteRecipeRepository(FoodDatabase foodDatabase, AppExecutor appExecutor) {
         this.foodDatabase = foodDatabase;
+        this.appExecutor = appExecutor;
     }
 
     public LiveData<List<Recipe>> getFavoriteRecipes() {
 
         return foodDatabase.getRecipeDao().getRecipes();
+    }
+
+    public void removeRecipe(final Recipe recipe) {
+        appExecutor.getSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                foodDatabase.getRecipeDao().deleteRecipe(recipe);
+            }
+        });
+
     }
 }

@@ -17,4 +17,8 @@ public class FavoriteRecipeViewModel extends ViewModel {
     public LiveData<List<Recipe>> getFavoriteRecipes(){
         return favoriteRecipeRepository.getFavoriteRecipes();
     }
+
+    public void removeRecipe(Recipe recipe){
+        favoriteRecipeRepository.removeRecipe(recipe);
+    }
 }

@@ -19,4 +19,5 @@ public interface RecipeDao {
 
     @Delete
     void deleteRecipe(Recipe recipe);
+
 }

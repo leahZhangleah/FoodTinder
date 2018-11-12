@@ -119,4 +119,9 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
             return true;
         }
     }
+
+    public void removeAt(int position){
+        favoriteRecipesList.remove(position);
+        notifyItemRemoved(position);
+    }
 }

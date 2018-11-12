@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 
 import com.bumptech.glide.Glide;
 import com.example.android.foodtinder.app.FoodTinderApplication;
@@ -33,6 +34,7 @@ public class FavoriteListActivity extends AppCompatActivity {
     private FavoriteListAdapter favoriteListAdapter;
     @Inject
     public FavoriteRecipeRepository favoriteRecipeRepository;
+    private FavoriteRecipeViewModel favoriteRecipeViewModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +44,25 @@ public class FavoriteListActivity extends AppCompatActivity {
         setUpInjection();
         setUpRecyclerView();
         setUpAdapter();
+        setUpSwipeCallback();
         getAllFavoriteRecipes();
+    }
+
+    private void setUpSwipeCallback() {
+        SwipeToDeleteCallback callback = new SwipeToDeleteCallback(0, ItemTouchHelper.LEFT,this) {
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                if(favoriteRecipesList!=null){
+                    Recipe recipe = favoriteRecipesList.get(viewHolder.getAdapterPosition());
+                    favoriteRecipeViewModel.removeRecipe(recipe);
+                    favoriteListAdapter.removeAt(viewHolder.getAdapterPosition());
+                };
+
+
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(favoriteListRv);
     }
 
     private void setUpInjection() {
@@ -51,12 +71,14 @@ public class FavoriteListActivity extends AppCompatActivity {
     }
 
     private void getAllFavoriteRecipes() {
-        FavoriteRecipeViewModel favoriteRecipeViewModel = ViewModelProviders.of(this,new MyViewModelFactory(favoriteRecipeRepository))
+        favoriteRecipeViewModel = ViewModelProviders.of(this,new MyViewModelFactory(favoriteRecipeRepository))
                 .get(FavoriteRecipeViewModel.class);
         favoriteRecipeViewModel.getFavoriteRecipes().observe(this, new Observer<List<Recipe>>() {
             @Override
             public void onChanged(@Nullable List<Recipe> recipes) {
-                favoriteListAdapter.newRecipes(recipes);
+                favoriteRecipesList.clear();
+                favoriteRecipesList.addAll(recipes);
+                favoriteListAdapter.newRecipes(favoriteRecipesList);
             }
         });
     }
@@ -69,5 +91,6 @@ public class FavoriteListActivity extends AppCompatActivity {
 
     private void setUpRecyclerView() {
         favoriteListRv.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
+
     }
 }

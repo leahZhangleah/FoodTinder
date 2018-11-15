@@ -31,7 +31,7 @@
 
         <activity android:name=".FoodRecipesActivity" />
         <activity android:name=".FavoriteListActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             </activity>
     </application>
 

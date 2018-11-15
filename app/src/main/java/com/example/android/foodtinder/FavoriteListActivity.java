@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -49,6 +50,35 @@ public class FavoriteListActivity extends AppCompatActivity {
     }
 
     private void setUpSwipeCallback() {
+        /*
+        ItemTouchHelper.Callback callbackOne = new ItemTouchHelper.Callback() {
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                return 0;
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+            }
+        };*/
+        //TODO: This is same as above
+        MyItemTouchHelper callback = new MyItemTouchHelper(0, ItemTouchHelper.LEFT) {
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                if(favoriteRecipesList!=null){
+                    Recipe recipe = favoriteRecipesList.get(viewHolder.getAdapterPosition());
+                    favoriteRecipeViewModel.removeRecipe(recipe);
+                    favoriteListAdapter.removeAt(viewHolder.getAdapterPosition());
+                };
+            }
+        };
+        /*
         SwipeToDeleteCallback callback = new SwipeToDeleteCallback(0, ItemTouchHelper.LEFT,this) {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
@@ -57,10 +87,8 @@ public class FavoriteListActivity extends AppCompatActivity {
                     favoriteRecipeViewModel.removeRecipe(recipe);
                     favoriteListAdapter.removeAt(viewHolder.getAdapterPosition());
                 };
-
-
             }
-        };
+        };*/
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(favoriteListRv);
     }
@@ -90,7 +118,31 @@ public class FavoriteListActivity extends AppCompatActivity {
     }
 
     private void setUpRecyclerView() {
-        favoriteListRv.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
-
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        favoriteListRv.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this,layoutManager.getOrientation());
+        favoriteListRv.addItemDecoration(dividerItemDecoration);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

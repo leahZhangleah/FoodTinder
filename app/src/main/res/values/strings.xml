@@ -2,4 +2,5 @@
     <string name="app_name">FoodTinder</string>
     <string name="log_out">Log Out</string>
     <string name="favorite_recipe_list">Favorite Recipe List</string>
+    <string name="delete">Delete</string>
 </resources>

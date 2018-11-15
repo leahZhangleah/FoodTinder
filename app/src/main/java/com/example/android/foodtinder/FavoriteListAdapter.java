@@ -1,14 +1,17 @@
 package com.example.android.foodtinder;
 
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
@@ -17,6 +20,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.android.foodtinder.db.Recipe;
+import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.SendButton;
 import com.facebook.share.widget.ShareButton;
 
@@ -37,20 +41,28 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
     @NonNull
     @Override
     public FavoriteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.favorite_recipe,parent,false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.favorite_recipe_two,parent,false);
         return new FavoriteViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FavoriteViewHolder holder, int position) {
-        Recipe recipe = favoriteRecipesList.get(position);
+    public void onBindViewHolder(@NonNull final FavoriteViewHolder holder, int position) {
+        final Recipe recipe = favoriteRecipesList.get(position);
         if(recipe!=null){
             holder.favoriteRecipeTitle.setText(recipe.getTitle());
             holder.favoriteRecipePb.setVisibility(View.VISIBLE);
            requestManager.load(recipe.getImage_url())
                    .listener(new MyRequestListener(holder))
                    .into(holder.favoriteRecipeImg);
+
+            Uri contentUri = Uri.parse(recipe.getSource_url());
+            ShareLinkContent shareLinkContent = new ShareLinkContent.Builder()
+                    .setContentUrl(contentUri)
+                    .build();
+           holder.shareButton.setShareContent(shareLinkContent);
+           holder.sendButton.setShareContent(shareLinkContent);
         }
+
     }
 
     @Override
@@ -86,9 +98,14 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
         ProgressBar favoriteRecipePb;
         @BindView(R.id.error_msg)
         TextView errorMsg;
+        @BindView(R.id.view_background)
+        RelativeLayout backgroundView;
+        @BindView(R.id.foreground_view)
+        ConstraintLayout foregroundView;
         public FavoriteViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this,itemView);
+           //todo:how to set textview to be multiline and end with ...
         }
     }
 

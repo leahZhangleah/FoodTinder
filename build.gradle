@@ -39,5 +39,7 @@ ext{
     butterKnifeVersion = "8.8.1"
     dagger2Version = "2.14.1"
     eventBusVersion = "3.1.1"
-
+    glideVersion = "4.8.0"
+    mockitoVersion = "2.6.1"
+    roboVersion = "4.0.2"
 }

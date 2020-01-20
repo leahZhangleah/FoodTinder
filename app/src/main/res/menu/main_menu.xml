@@ -5,4 +5,7 @@
     <item android:id="@+id/logOutBtn"
         android:title="@string/log_out">
     </item>
+    <item android:id="@+id/get_file_from_other_app"
+        android:title="Get more files">
+    </item>
 </menu>

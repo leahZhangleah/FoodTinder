@@ -2,12 +2,15 @@ package com.example.android.foodtinder;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +31,11 @@ import com.example.android.foodtinder.db.Recipe;
 import com.example.android.foodtinder.mvp.RecipePresenter;
 import com.example.android.foodtinder.mvp.RecipeView;
 import com.facebook.login.LoginManager;
+
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -54,6 +62,7 @@ public class FoodRecipesActivity extends AppCompatActivity implements RecipeView
     @Inject
     public GlideImageLoader glideImageLoader;
     private GestureDetectorCompat mDetector;
+    private ParcelFileDescriptor mInputPFD;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +83,6 @@ public class FoodRecipesActivity extends AppCompatActivity implements RecipeView
         recipePresenter.onDestroy();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu,menu);
-        return super.onCreateOptionsMenu(menu);
-    }
 
     @OnClick(R.id.dismissBtn)
     public void dismissRecipe(){
@@ -128,6 +132,12 @@ public class FoodRecipesActivity extends AppCompatActivity implements RecipeView
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.logOutBtn:
@@ -138,6 +148,9 @@ public class FoodRecipesActivity extends AppCompatActivity implements RecipeView
             case R.id.favorite_list:
                 navigateToFavoriteList();
                 return true;
+            case R.id.get_file_from_other_app:
+                getMoreFilesFromOtherApp();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -145,6 +158,38 @@ public class FoodRecipesActivity extends AppCompatActivity implements RecipeView
     private void navigateToFavoriteList(){
         Intent intent = new Intent(this,FavoriteListActivity.class);
         startActivity(intent);
+    }
+
+    //TODO: has problem to read app and data practice app's data
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode!=RESULT_OK){
+            return;
+        }else{
+            Uri returnUri = data.getData();
+            String mimeType = getContentResolver().getType(returnUri);
+            try{
+                mInputPFD = getContentResolver().openFileDescriptor(returnUri,"r");
+                FileDescriptor fileDescriptor = mInputPFD.getFileDescriptor();
+                FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
+                int length = fileInputStream.read();
+                Snackbar.make(recipeLayout,"the length of returned file is: "+length,Snackbar.LENGTH_SHORT).show();
+            }catch (FileNotFoundException e){
+                e.printStackTrace();
+                Log.e(TAG,"File not found");
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private void getMoreFilesFromOtherApp(){
+        Intent requestFileIntent = new Intent(Intent.ACTION_PICK);
+        requestFileIntent.setType("text/plain");
+        startActivityForResult(requestFileIntent,0);
     }
 
 
